@@ -46,10 +46,10 @@ jobs:
       # Sync static files to S3 using aws s3 sync command
       - name: Collect static files
         run: python manage.py collectstatic --noinput
-        
+
       - name: Sync static files to S3
         run: |
-          aws s3 sync ./staticfiles/ s3://your-bucket-name/static/ --delete
+          aws s3 sync ./static/ s3://your-bucket-name/static/ --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

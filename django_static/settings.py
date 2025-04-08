@@ -88,6 +88,7 @@ AWS_QUERYSTRING_EXPIRE = int(os.environ.get('AWS_QUERYSTRING_EXPIRE', 604800))
 CLOUDFRONT_DOMAIN = os.environ.get('CLOUDFRONT_DOMAIN')
 
 # Static
-STATIC_LOCATION = "static"
+STATIC_LOCATION = 'static'
 STATIC_URL = f"{CLOUDFRONT_DOMAIN}/static/"
+STATIC_ROOT = STATIC_LOCATION
 # STATICFILES_STORAGE = 'django_static.storage_backends.StaticStorage'
