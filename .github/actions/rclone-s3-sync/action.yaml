@@ -16,10 +16,6 @@ inputs:
   aws_region:
     description: 'AWS Region'
     required: true
-  delete_removed:
-    description: 'Delete files in destination that are not in source'
-    default: 'true'
-    required: false
 
 runs:
   using: 'composite'
@@ -41,9 +37,10 @@ runs:
         " > ~/.config/rclone/rclone.conf
       shell: bash
 
-    - name: Sync files with rclone
+    - name: Sync only updated files
       run: |
         rclone sync ${{ inputs.source_dir }} s3:${{ inputs.s3_bucket }} \
-          --verbose \
-          ${{ inputs.delete_removed == 'true' && '--delete' || '' }}
+          --update \
+          --checksum \
+          --verbose
       shell: bash
