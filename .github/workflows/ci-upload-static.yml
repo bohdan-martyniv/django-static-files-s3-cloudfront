@@ -43,14 +43,36 @@ jobs:
       #     python manage.py collectstatic --noinput
 
 
-      # Sync static files to S3 using aws s3 sync command
+      # # Sync static files to S3 using aws s3 sync command
+      # - name: Collect static files
+      #   run: python manage.py collectstatic --noinput
+
+      # - name: Sync static files to S3
+      #   run: |
+      #     aws s3 sync ./static/ s3://${{ secrets.AWS_STORAGE_BUCKET_NAME }}/static/ --delete
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_REGION: ${{ secrets.AWS_S3_REGION_NAME }}
+
+      - name: Install rclone
+        run: |
+          curl https://rclone.org/install.sh | sudo bash
+
+      - name: Configure rclone
+        run: |
+          mkdir -p ~/.config/rclone
+          echo "[s3]
+          type = s3
+          provider = AWS
+          access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region = ${{ secrets.AWS_S3_REGION_NAME }}
+          " > ~/.config/rclone/rclone.conf
+      
       - name: Collect static files
         run: python manage.py collectstatic --noinput
-
-      - name: Sync static files to S3
+  
+      - name: Sync static files to S3 using rclone
         run: |
-          aws s3 sync ./static/ s3://${{ secrets.AWS_STORAGE_BUCKET_NAME }}/static/ --delete
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_S3_REGION_NAME }}
+          rclone sync ./static/ s3:${{ secrets.AWS_STORAGE_BUCKET_NAME }}/static/ --verbose
