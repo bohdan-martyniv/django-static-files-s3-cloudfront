@@ -55,24 +55,38 @@ jobs:
       #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       #     AWS_REGION: ${{ secrets.AWS_S3_REGION_NAME }}
 
-      - name: Install rclone
-        run: |
-          curl https://rclone.org/install.sh | sudo bash
+      #   Sync static files to S3 using rclone utility
+      # - name: Install rclone
+      #   run: |
+      #     curl https://rclone.org/install.sh | sudo bash
 
-      - name: Configure rclone
-        run: |
-          mkdir -p ~/.config/rclone
-          echo "[s3]
-          type = s3
-          provider = AWS
-          access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          region = ${{ secrets.AWS_S3_REGION_NAME }}
-          " > ~/.config/rclone/rclone.conf
+      # - name: Configure rclone
+      #   run: |
+      #     mkdir -p ~/.config/rclone
+      #     echo "[s3]
+      #     type = s3
+      #     provider = AWS
+      #     access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     region = ${{ secrets.AWS_S3_REGION_NAME }}
+      #     " > ~/.config/rclone/rclone.conf
       
+      # - name: Collect static files
+      #   run: python manage.py collectstatic --noinput
+  
+      # - name: Sync static files to S3 using rclone
+      #   run: |
+      #     rclone sync ./static/ s3:${{ secrets.AWS_STORAGE_BUCKET_NAME }}/static/ --verbose
+
       - name: Collect static files
         run: python manage.py collectstatic --noinput
-  
-      - name: Sync static files to S3 using rclone
-        run: |
-          rclone sync ./static/ s3:${{ secrets.AWS_STORAGE_BUCKET_NAME }}/static/ --verbose
+
+      - name: Sync static files to S3 (via rclone)
+        uses: ./.github/actions/rclone-s3-sync
+        with:
+          source_dir: "./static/"
+          s3_bucket: "${{ secrets.AWS_STORAGE_BUCKET_NAME }}/static"
+          aws_access_key_id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          aws_secret_access_key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          aws_region: "${{ secrets.AWS_S3_REGION_NAME }}"
+          delete_removed: "true"

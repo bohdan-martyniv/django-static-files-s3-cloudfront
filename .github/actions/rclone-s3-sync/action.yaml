@@ -1,0 +1,49 @@
+name: 'Rclone S3 Sync'
+description: 'Sync files to S3 using rclone'
+inputs:
+  source_dir:
+    description: 'Local directory to sync'
+    required: true
+  s3_bucket:
+    description: 'S3 bucket name (e.g., "my-bucket/path")'
+    required: true
+  aws_access_key_id:
+    description: 'AWS Access Key ID'
+    required: true
+  aws_secret_access_key:
+    description: 'AWS Secret Access Key'
+    required: true
+  aws_region:
+    description: 'AWS Region'
+    required: true
+  delete_removed:
+    description: 'Delete files in destination that are not in source'
+    default: 'true'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install rclone
+      run: |
+        curl https://rclone.org/install.sh | sudo bash
+      shell: bash
+
+    - name: Configure rclone
+      run: |
+        mkdir -p ~/.config/rclone
+        echo "[s3]
+        type = s3
+        provider = AWS
+        access_key_id = ${{ inputs.aws_access_key_id }}
+        secret_access_key = ${{ inputs.aws_secret_access_key }}
+        region = ${{ inputs.aws_region }}
+        " > ~/.config/rclone/rclone.conf
+      shell: bash
+
+    - name: Sync files with rclone
+      run: |
+        rclone sync ${{ inputs.source_dir }} s3:${{ inputs.s3_bucket }} \
+          --verbose \
+          ${{ inputs.delete_removed == 'true' && '--delete' || '' }}
+      shell: bash
