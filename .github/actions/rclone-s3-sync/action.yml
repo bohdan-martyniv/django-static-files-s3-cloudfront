@@ -26,8 +26,8 @@ runs:
         echo "[s3]
         type = s3
         provider = AWS
-        access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
-        secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        access_key_id = ${{ env.AWS_ACCESS_KEY_ID }}
+        secret_access_key = ${{ env.AWS_SECRET_ACCESS_KEY }}
         region = ${{ inputs.aws_region }}
         " > ~/.config/rclone/rclone.conf
 
