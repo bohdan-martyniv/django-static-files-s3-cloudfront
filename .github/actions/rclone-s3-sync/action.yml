@@ -1,46 +1,39 @@
-name: 'Rclone S3 Sync'
+name: 'S3 Sync with Rclone'
 description: 'Sync files to S3 using rclone'
 inputs:
   source_dir:
     description: 'Local directory to sync'
     required: true
   s3_bucket:
-    description: 'S3 bucket name (e.g., "my-bucket/path")'
-    required: true
-  aws_access_key_id:
-    description: 'AWS Access Key ID'
-    required: true
-  aws_secret_access_key:
-    description: 'AWS Secret Access Key'
+    description: 'S3 bucket name with optional path (e.g. "my-bucket/static")'
     required: true
   aws_region:
-    description: 'AWS Region'
+    description: 'AWS region (e.g. "us-east-1")'
     required: true
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Install rclone
+      shell: bash
       run: |
         curl https://rclone.org/install.sh | sudo bash
-      shell: bash
 
     - name: Configure rclone
+      shell: bash
       run: |
         mkdir -p ~/.config/rclone
         echo "[s3]
         type = s3
         provider = AWS
-        access_key_id = ${{ inputs.aws_access_key_id }}
-        secret_access_key = ${{ inputs.aws_secret_access_key }}
+        access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
+        secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         region = ${{ inputs.aws_region }}
         " > ~/.config/rclone/rclone.conf
-      shell: bash
 
-    - name: Sync only updated files
+    - name: Sync files to S3
+      shell: bash
       run: |
         rclone sync ${{ inputs.source_dir }} s3:${{ inputs.s3_bucket }} \
-          --update \
           --checksum \
           --verbose
-      shell: bash
