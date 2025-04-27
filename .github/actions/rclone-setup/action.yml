@@ -16,7 +16,7 @@ runs:
     - name: Setup Rclone
       shell: bash
       run: |
-        rclone config create s3remote s3 \
+        rclone config create s3 s3 \
         provider=AWS \
         env_auth=true \
         region=${{ inputs.aws_region }}
