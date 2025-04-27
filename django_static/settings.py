@@ -90,5 +90,5 @@ CLOUDFRONT_DOMAIN = os.environ.get('CLOUDFRONT_DOMAIN')
 # Static
 STATIC_LOCATION = 'static'
 STATIC_URL = f"{CLOUDFRONT_DOMAIN}/static/"
-STATIC_ROOT = STATIC_LOCATION
-# STATICFILES_STORAGE = 'django_static.storage_backends.StaticStorage'
+# STATIC_ROOT = STATIC_LOCATION
+STATICFILES_STORAGE = 'django_static.storage_backends.StaticStorage'
